@@ -16,10 +16,10 @@ import com.laioffer.jupiter.entity.Game;
 public class GameServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // 利用前端传入的数据 来初始化 JSONObject
-        // 前端发送的是JSON -- stream --> String --> JSON
+        // 前端发送的是JSON --> String --> stream --> String --> JSON
         // 互联网传输过程中 前端发送的 JSON 格式文件被转化为 stream 格式，可能一段JSON 需要几个 steam 才能收到
         // Step 1: request.getReader() 获取 request的body, request的body本来是 stream 格式，流数据
-        // Step 2: IOUtils.toString() 将 request body转化为String
+        // Step 2: IOUtils.toString() 将 request body(stream)转化为String
         // Step 3: JSONObject 将String 转化为 JSON 格式的 Object
         JSONObject jsonRequest = new JSONObject(IOUtils.toString(request.getReader()));
         String name = jsonRequest.getString("name");
@@ -64,10 +64,10 @@ public class GameServlet extends HttpServlet {
 
         // Method 2:
         // 把Java格式的对象 convert成JSONObject的数据
-        Game game = new Game("World of Warcraft", "Blizzard Entertainment",
-                "Feb 11, 2005", "https://www.worldofwarcraft.com", 49.99);
-        // Jackson library 里的 ObjectMapper class 提供了转化 Java Object
-        ObjectMapper mapper = new ObjectMapper();
-        response.getWriter().print(mapper.writeValueAsString(game));
+//        Game game = new Game("World of Warcraft", "Blizzard Entertainment",
+//                "Feb 11, 2005", "https://www.worldofwarcraft.com", 49.99);
+//        // Jackson library 里的 ObjectMapper class 提供了转化 Java Object
+//        ObjectMapper mapper = new ObjectMapper();
+//        response.getWriter().print(mapper.writeValueAsString(game));
     }
 }

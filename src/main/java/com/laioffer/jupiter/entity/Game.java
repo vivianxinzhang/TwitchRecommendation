@@ -1,30 +1,99 @@
 package com.laioffer.jupiter.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonDeserialize(builder = Game.Builder.class)
+// @JsonIgnoreProperties(ignoreUnknown = true) indicates that other fields in the response can be safely ignored.
+// Without this, you’ll get an exception at runtime.
+// @JsonInclude(JsonInclude.Include.NON_NULL) indicates that null fields can be skipped and not included.
+// @JsonDeserialize indicates that Jackson needs to use Game.Builder when constructing a Game object from JSON strings.
 public class Game {
-    // annotation
+    // annotation  如果此处不写  会默认用 field name 来做mapping
+//    @JsonProperty("name")
+//    public String name;
+//
+//    @JsonProperty("developer")
+//    public String developer;
+//
+//    @JsonProperty("release_time")
+//    public String releaseTime;
+//
+//    @JsonProperty("website")
+//    public String website;
+//
+//    @JsonProperty("price")
+//    public double price;
+
+//    public Game(String name, String developer, String releaseTime, String website, double price) {
+//        this.name = name;
+//        this.developer = developer;
+//        this.releaseTime = releaseTime;
+//        this.website = website;
+//        this.price = price;
+//    }
+
+    // Note the @JsonProperty("") annotation is applied to the getter method instead of the field.
+    // This is because the field is private and the way to get the data is by getter.
+    @JsonProperty("id")
+    private final String id;
+
     @JsonProperty("name")
-    public String name;
+    private final String name;
 
-    @JsonProperty("developer")
-    public String developer;
+    @JsonProperty("box_art_url")
+    private final String boxArtUrl;
 
-    @JsonProperty("release_time")
-    public String releaseTime;
+    private Game(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.boxArtUrl = builder.boxArtUrl;
+    }
 
-    @JsonProperty("website")
-    public String website;
+    public String getId() {
+        return id;
+    }
 
-    @JsonProperty("price")
-    public double price;
+    public String getName() {
+        return name;
+    }
 
-    public Game(String name, String developer, String releaseTime, String website, double price) {
-        this.name = name;
-        this.developer = developer;
-        this.releaseTime = releaseTime;
-        this.website = website;
-        this.price = price;
+    public String getBoxArtUrl() {
+        return boxArtUrl;
+    }
+
+    public static class Builder {
+        @JsonProperty("id")
+        private String id;
+
+        @JsonProperty("name")
+        private String name;
+
+        @JsonProperty("box_art_url")
+        private String boxArtUrl;
+
+        public Builder id(String id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder boxArtUrl(String boxArtUrl) {
+            this.boxArtUrl = boxArtUrl;
+            return this;
+        }
+
+        public Game build() {
+            return new Game(this);
+        }
     }
 
 
