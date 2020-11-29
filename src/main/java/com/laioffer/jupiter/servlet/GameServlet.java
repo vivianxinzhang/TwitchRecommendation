@@ -8,6 +8,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laioffer.jupiter.external.TwitchClient;
+import com.laioffer.jupiter.external.TwitchException;
 import org.json.JSONObject;
 import org.apache.commons.io.IOUtils;
 import com.laioffer.jupiter.entity.Game;
@@ -69,5 +71,19 @@ public class GameServlet extends HttpServlet {
 //        // Jackson library 里的 ObjectMapper class 提供了转化 Java Object
 //        ObjectMapper mapper = new ObjectMapper();
 //        response.getWriter().print(mapper.writeValueAsString(game));
+
+        String gameName = request.getParameter("game_name");
+        TwitchClient client = new TwitchClient();
+
+                response.setContentType("application/json;charset=UTF-8");
+        try {
+            if (gameName != null) {
+                response.getWriter().print(new ObjectMapper().writeValueAsString(client.searchGames(gameName)));
+            } else {
+                response.getWriter().print(new ObjectMapper().writeValueAsString(client.topGames(0)));
+            }
+        } catch (TwitchException e) {
+            throw new ServletException(e);
+        }
     }
 }
