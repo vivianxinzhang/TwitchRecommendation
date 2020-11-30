@@ -80,6 +80,7 @@ public class GameServlet extends HttpServlet {
             if (gameName != null) {
                 response.getWriter().print(new ObjectMapper().writeValueAsString(client.searchGames(gameName)));
             } else {
+                // limit = 0 代表 default limit 20
                 response.getWriter().print(new ObjectMapper().writeValueAsString(client.topGames(0)));
             }
         } catch (TwitchException e) {

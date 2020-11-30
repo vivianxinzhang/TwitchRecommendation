@@ -6,8 +6,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+// 对于 json中有 Game中没有的field 就忽略 而不要抛出异常
 @JsonInclude(JsonInclude.Include.NON_NULL)
+// 对 null 的数据不convert
 @JsonDeserialize(builder = Game.Builder.class)
+// 创建 Game对象的时候使用 builder class 不要用其默认的 constructor
 // @JsonIgnoreProperties(ignoreUnknown = true) indicates that other fields in the response can be safely ignored.
 // Without this, you’ll get an exception at runtime.
 // @JsonInclude(JsonInclude.Include.NON_NULL) indicates that null fields can be skipped and not included.
@@ -66,6 +69,8 @@ public class Game {
         return boxArtUrl;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Builder {
         @JsonProperty("id")
         private String id;
