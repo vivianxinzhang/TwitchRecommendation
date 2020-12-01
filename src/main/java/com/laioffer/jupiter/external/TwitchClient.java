@@ -15,8 +15,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class TwitchClient {
     private static final String TOKEN = "Bearer mganjf77ttgmc42wdc5qh0qmdnhlc2";
@@ -175,5 +174,35 @@ public class TwitchClient {
             item.setType(ItemType.VIDEO);
         }
         return videos;
+    }
+
+    public List<Item> searchByType(String gameId, ItemType type, int limit) throws TwitchException {
+        List<Item> items = Collections.emptyList();
+
+        switch (type) {
+            case STREAM:
+                items = searchStreams(gameId, limit);
+                break;
+            case VIDEO:
+                items = searchVideos(gameId, limit);
+                break;
+            case CLIP:
+                items = searchClips(gameId, limit);
+                break;
+        }
+
+        // update gameId for all items. gameId is used by recommendation function
+        for (Item item : items) {
+            item.setGameId(gameId);
+        }
+        return items;
+    }
+
+    public Map<String, List<Item>> searchItems(String gameId) throws TwitchException {
+        Map<String, List<Item>> itemMap = new HashMap<>();
+        for (ItemType type : ItemType.values()) {
+            itemMap.put(type.toString(), searchByType(gameId, type, DEFAULT_SEARCH_LIMIT));
+        }
+        return itemMap;
     }
 }
