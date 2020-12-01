@@ -91,6 +91,8 @@ public class Item {
         return this;
     }
 
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Builder {
         @JsonProperty("id")
         private String id;
