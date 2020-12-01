@@ -5,6 +5,8 @@ import java.net.URLEncoder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laioffer.jupiter.entity.Game;
+import com.laioffer.jupiter.entity.Item;
+import com.laioffer.jupiter.entity.ItemType;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
@@ -21,8 +23,13 @@ public class TwitchClient {
     private static final String CLIENT_ID = "0qlcz30q4un2matqwymexkckckfuob";
     private static final String TOP_GAME_URL = "https://api.twitch.tv/helix/games/top?first=%s";
     private static final String GAME_SEARCH_URL_TEMPLATE = "https://api.twitch.tv/helix/games?name=%s";
-    // %s 是template 占位符 根据前端传进来的参数会被修改
+    // %s 是template占位符 根据前端传进来的参数会被修改
     private static final int DEFAULT_GAME_LIMIT = 20;
+    private static final String STREAM_SEARCH_URL_TEMPLATE = "https://api.twitch.tv/helix/streams?game_id=%s&first=%s";
+    private static final String VIDEO_SEARCH_URL_TEMPLATE = "https://api.twitch.tv/helix/videos?game_id=%s&first=%s";
+    private static final String CLIP_SEARCH_URL_TEMPLATE = "https://api.twitch.tv/helix/clips?game_id=%s&first=%s";
+    private static final String TWITCH_BASE_URL = "https://www.twitch.tv/";
+    private static final int DEFAULT_SEARCH_LIMIT = 20;
 
     // implement buildGameURL function
     private String buildGameURL(String url, String gameName, int limit) {
@@ -43,7 +50,17 @@ public class TwitchClient {
         }
     }
 
-    // implement buildGameURL function
+    // implement buildSearchURL function
+    private String buildSearchURL(String url, String gameId, int limit) {
+        try {
+            gameId = URLEncoder.encode(gameId, "UTF-8");
+            //
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return String.format(url, gameId, limit);
+    }
+
     private String searchTwitch(String url) throws TwitchException {
         // httpclient 用来帮助发送请求
         CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -122,5 +139,41 @@ public class TwitchClient {
             return gameList.get(0);
         }
         return null;
+    }
+
+    private List<Item> getItemList(String data) throws TwitchException {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return Arrays.asList(mapper.readValue(data, Item[].class));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            throw new TwitchException("Failed to parse item data from Twitch API");
+        }
+    }
+
+    private List<Item> searchStreams(String gameId, int limit) throws TwitchException {
+        List<Item> streams = getItemList(searchTwitch(buildSearchURL(STREAM_SEARCH_URL_TEMPLATE, gameId, limit)));
+        for (Item item : streams) {
+            item.setType(ItemType.STREAM);
+            item.setUrl(TWITCH_BASE_URL + item.getBroadcasterName());
+        }
+        return streams;
+    }
+
+
+    private List<Item> searchClips(String gameId, int limit) throws TwitchException {
+        List<Item> clips = getItemList(searchTwitch(buildSearchURL(CLIP_SEARCH_URL_TEMPLATE, gameId, limit)));
+        for (Item item : clips) {
+            item.setType(ItemType.CLIP);
+        }
+        return clips;
+    }
+
+    private List<Item> searchVideos(String gameId, int limit) throws TwitchException {
+        List<Item> videos = getItemList(searchTwitch(buildSearchURL(VIDEO_SEARCH_URL_TEMPLATE, gameId, limit)));
+        for (Item item : videos) {
+            item.setType(ItemType.VIDEO);
+        }
+        return videos;
     }
 }
