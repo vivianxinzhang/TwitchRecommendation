@@ -24,6 +24,7 @@ public class TwitchClient {
     private static final String GAME_SEARCH_URL_TEMPLATE = "https://api.twitch.tv/helix/games?name=%s";
     // %s 是template占位符 根据前端传进来的参数会被修改
     private static final int DEFAULT_GAME_LIMIT = 20;
+    // search url template
     private static final String STREAM_SEARCH_URL_TEMPLATE = "https://api.twitch.tv/helix/streams?game_id=%s&first=%s";
     private static final String VIDEO_SEARCH_URL_TEMPLATE = "https://api.twitch.tv/helix/videos?game_id=%s&first=%s";
     private static final String CLIP_SEARCH_URL_TEMPLATE = "https://api.twitch.tv/helix/clips?game_id=%s&first=%s";
@@ -38,12 +39,14 @@ public class TwitchClient {
             return String.format(url, limit);
         } else {
             try {
-                // amont us => among%20us
+                // why encode? amont us => among%20us
+                // 空格在 request header 里代表一段信息的结束
                 gameName = URLEncoder.encode(gameName, "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
             // getGame
+            // 替换占位符
             // https://api.twitch.tv/helix/games?name=among%20us
             return String.format(url, gameName);
         }
@@ -53,10 +56,13 @@ public class TwitchClient {
     private String buildSearchURL(String url, String gameId, int limit) {
         try {
             gameId = URLEncoder.encode(gameId, "UTF-8");
-            //
+            // why encode? amont us => among%20us 或者其它的特殊字符
+            // 空格在 request header 里代表一段信息的结束
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+        // 替换占位符
+        // https://api.twitch.tv/helix/streams?game_id=16898&first=20
         return String.format(url, gameId, limit);
     }
 
@@ -108,12 +114,23 @@ public class TwitchClient {
             // 把 JSON 格式的array convert 为Java Object
             // 如果无法一一对应会出现JSONException
             // 后面一个参数（Game[].class）的意思是 convert 成 Game 这个 class 组成的 array
+            // JSON -> Java Object Game
             Game[] games = mapper.readValue(data, Game[].class);
              return Arrays.asList(games);
             // return Arrays.asList(mapper.readValue(data, Game[].class));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             throw new TwitchException("Failed to parse game data from Twitch API");
+        }
+    }
+
+    private List<Item> getItemList(String data) throws TwitchException {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return Arrays.asList(mapper.readValue(data, Item[].class));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            throw new TwitchException("Failed to parse item data from Twitch API");
         }
     }
 
@@ -140,20 +157,20 @@ public class TwitchClient {
         return null;
     }
 
-    private List<Item> getItemList(String data) throws TwitchException {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return Arrays.asList(mapper.readValue(data, Item[].class));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            throw new TwitchException("Failed to parse item data from Twitch API");
-        }
-    }
 
     private List<Item> searchStreams(String gameId, int limit) throws TwitchException {
         List<Item> streams = getItemList(searchTwitch(buildSearchURL(STREAM_SEARCH_URL_TEMPLATE, gameId, limit)));
+        // Step 1:
+        //vString url = buildSearchURL(STREAM_SEARCH_URL_TEMPLATE, gameId, limit);
+        // Step 2:
+        //vString data = searchTwitch(url);
+        // Step 3:
+        // List<Item> streams = getItemList(data);
+
         for (Item item : streams) {
+            // set item type
             item.setType(ItemType.STREAM);
+            // set url, stream request does not return url data, we need to set it up by ourself
             item.setUrl(TWITCH_BASE_URL + item.getBroadcasterName());
         }
         return streams;
@@ -163,6 +180,7 @@ public class TwitchClient {
     private List<Item> searchClips(String gameId, int limit) throws TwitchException {
         List<Item> clips = getItemList(searchTwitch(buildSearchURL(CLIP_SEARCH_URL_TEMPLATE, gameId, limit)));
         for (Item item : clips) {
+            // set item type
             item.setType(ItemType.CLIP);
         }
         return clips;
@@ -171,11 +189,14 @@ public class TwitchClient {
     private List<Item> searchVideos(String gameId, int limit) throws TwitchException {
         List<Item> videos = getItemList(searchTwitch(buildSearchURL(VIDEO_SEARCH_URL_TEMPLATE, gameId, limit)));
         for (Item item : videos) {
+            // set item type
             item.setType(ItemType.VIDEO);
         }
         return videos;
     }
 
+    // 只需调用一个 method  传入不同的参数即可
+    // 不用去 分别调用 三个不同的 method
     public List<Item> searchByType(String gameId, ItemType type, int limit) throws TwitchException {
         List<Item> items = Collections.emptyList();
 
@@ -198,6 +219,7 @@ public class TwitchClient {
         return items;
     }
 
+    // ["Stream" : ... ; "Video" : ... ; "Clip" : ...]
     public Map<String, List<Item>> searchItems(String gameId) throws TwitchException {
         Map<String, List<Item>> itemMap = new HashMap<>();
         for (ItemType type : ItemType.values()) {
@@ -205,4 +227,7 @@ public class TwitchClient {
         }
         return itemMap;
     }
+
+    // test search Twitch
+    // String mocckSearchTwitch(...) { return predefined result}
 }

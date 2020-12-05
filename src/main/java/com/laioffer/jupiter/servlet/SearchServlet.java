@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+// urlPatterns = {"/search"} convention, url里一般都是小写字母
 @WebServlet(name = "SearchServlet", urlPatterns = {"/search"})
 public class SearchServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -21,6 +22,7 @@ public class SearchServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String gameId = request.getParameter("game_id");
         if (gameId == null) {
+            // 400 response
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
@@ -28,6 +30,13 @@ public class SearchServlet extends HttpServlet {
         try {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().print(new ObjectMapper().writeValueAsString(client.searchItems(gameId)));
+            // Step 1:
+            // Map<String, List<Item>> items = client.searchItems(gameId)
+            // Step 2:
+            // ObjectMapper().writeValueAsString()   item -> JSON
+            // String output = new ObjectMapper().writeValueAsString(items);
+            // Step 3:
+            // response.getWriter().print(output);
         } catch (TwitchException e) {
             throw new ServletException(e);
         }

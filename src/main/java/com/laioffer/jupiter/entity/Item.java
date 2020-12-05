@@ -6,12 +6,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+// POJO Class 没有逻辑功能 主要定义一些 fields
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonDeserialize(builder = Item.Builder.class)
 public class Item {
+    // Json 格式的数据 convert 成 Java Object
     @JsonProperty("id")
-    private final String id;
+    private final String id;    // final 因为返回的数据有这些信息 且我们不想修改这些信息
 
     @JsonProperty("title")
     private final String title;
@@ -21,17 +23,20 @@ public class Item {
 
     @JsonProperty("broadcaster_name")
     @JsonAlias({ "user_name" })
+    // @JsonAlias({ "user_name"， "video_name", "clip_name" })
     // @JsonAlias indicates that the field could be retrieved by another key.
+    // 两个key map到同一个 property, clip 里用的是  "broadcaster_name"，
+    // video 和 stream 用的是 "user_name"
     private String broadcasterName;
 
     @JsonProperty("url")
-    private String url;
+    private String url;     // / 返回的数据可能不带 url 需要我们自己 set
 
     @JsonProperty("game_id")
-    private String gameId;
+    private String gameId;  // 返回的数据可能不带 gameId 需要我们自己 set
 
     @JsonProperty("item_type")
-    private ItemType type;
+    private ItemType type;  // 返回的数据不带 ItemType 是我们自己定义的
 
     private Item(Builder builder) {
         this.id = builder.id;
