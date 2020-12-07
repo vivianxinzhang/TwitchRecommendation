@@ -20,6 +20,9 @@ public class FavoriteServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String userId = request.getParameter("user_id");
         ObjectMapper mapper = new ObjectMapper();
+        // step 1: 读取 request body: request.getReader()
+        // step 2: 用 ObjectMapper 将 JSON对象 convert 为 Java Object（class类型：FavoriteRequestBody.class）：mapper.readValue()
+        // request.getReader() --> Reader 是读取 stream的interface
         FavoriteRequestBody body = mapper.readValue(request.getReader(), FavoriteRequestBody.class);
         if (body == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -47,6 +50,8 @@ public class FavoriteServlet extends HttpServlet {
             connection = new MySQLConnection();
             itemMap = connection.getFavoriteItems(userId);
             response.setContentType("application/json;charset=UTF-8");
+            // ObjectMapper().writeValueAsString()
+            // Java Object  -->  JSON
             response.getWriter().print(new ObjectMapper().writeValueAsString(itemMap));
         } catch (MySQLException e) {
             throw new ServletException(e);

@@ -18,7 +18,7 @@ import com.laioffer.jupiter.entity.Game;
 public class GameServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // 利用前端传入的数据 来初始化 JSONObject
-        // 前端发送的是JSON --> String --> stream --> String --> JSON
+        // 前端发送的是 JSON --> String --> stream --> String --> JSON
         // 互联网传输过程中 前端发送的 JSON 格式文件被转化为 stream 格式，可能一段JSON 需要几个 steam 才能收到
         // Step 1: request.getReader() 获取 request的body, request的body本来是 stream 格式，流数据
         // Step 2: IOUtils.toString() 将 request body(stream)转化为String
