@@ -25,11 +25,12 @@ public class LoginServlet extends HttpServlet {
         }
 
         String username;
-
         MySQLConnection connection = null;
         try {
             connection = new MySQLConnection();
             String userId = body.getUserId();
+            // 这里也需要加密  因为存在数据库重的是加密后的password
+            // 此处是与存在数据库中 encrypt password 进行比对 所以此处也需要加密
             String password = ServletUtil.encryptPassword(body.getUserId(), body.getPassword());
             username = connection.verifyLogin(userId, password);
         } catch (MySQLException e) {
@@ -39,15 +40,22 @@ public class LoginServlet extends HttpServlet {
                 connection.close();
             }
         }
+        // generate session
         if (!username.isEmpty()) {
+            // getSession either get current session or create a session
+            // 此处login，为create session
             HttpSession session = request.getSession();
+            // 将 user_id 存为 session 的一个 attribute
             session.setAttribute("user_id", body.getUserId());
+            // 过期时间
             session.setMaxInactiveInterval(600);
-
+            // tomcat 把session绑定在 request 和 response 上
+            // 将response返回给前端的时候 session在header里一起返回给前端了
             LoginRequestBody loginRequestBody = new LoginRequestBody(body.getUserId(), username);
+            // 将 loginRequestBody 返回给前端
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().print(new ObjectMapper().writeValueAsString(loginRequestBody));
-        } else {
+        } else {    // 如果返回的 username为 "", 表示登陆失败，无法验证身份
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
     }

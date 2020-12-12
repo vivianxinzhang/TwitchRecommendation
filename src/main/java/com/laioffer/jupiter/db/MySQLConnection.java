@@ -46,6 +46,7 @@ public class MySQLConnection {
         }
     }
 
+    // 验证登录: 成功返回username, 不成功返回 ""
     public String verifyLogin(String userId, String password) throws MySQLException {
         if (conn == null) {
             System.err.println("DB connection failed");
@@ -53,13 +54,14 @@ public class MySQLConnection {
         }
         String name = "";
         String sql = "SELECT first_name, last_name FROM users WHERE id = ? AND password = ?";
+        // PreparedStatement: 1. 方便 2.安全 防止 sql injection
         try {
             PreparedStatement statement = conn.prepareStatement(sql);
             // 只能一个 col 一个col 的 set
             statement.setString(1, userId);
             statement.setString(2, password);
-            // 执行 sql 语句
-            ResultSet rs = statement.executeQuery();
+            // 执行 sql 语句, 读数据用 executeQuery
+            ResultSet rs = statement.executeQuery();    // 结果只有一行 或者没有 所以下面可以用 if
             if (rs.next()) {
                 name = rs.getString("first_name") + " " + rs.getString("last_name");
             }
@@ -70,6 +72,7 @@ public class MySQLConnection {
         return name;
     }
 
+    // 把新用户加到数据库中
     public boolean addUser(User user) throws MySQLException {
         if (conn == null) {
             System.err.println("DB connection failed");
@@ -82,8 +85,11 @@ public class MySQLConnection {
             statement.setString(2, user.getPassword());
             statement.setString(3, user.getFirstName());
             statement.setString(4, user.getLastName());
-
-            return statement.executeUpdate() == 1;
+            // 执行 sql 语句, 存数据用 executeUpdate
+            // 如何知道插入成功还是失败
+            return statement.executeUpdate() == 1;  // 是否成功插入一行
+            // 此处 == 1 表示插入成功， != 1 表示duplicate
+            // executeUpdate 的返回值是说这个 sql语句执行 插入了多少行
         } catch (SQLException e) {
             e.printStackTrace();
             throw new MySQLException("Failed to get user information from Database");

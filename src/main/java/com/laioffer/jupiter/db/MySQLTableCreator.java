@@ -82,8 +82,8 @@ public class MySQLTableCreator {
             statement.executeUpdate(sql);
 
             // Step 4 insert fake user
-            // 这个 长string 代表加密之后的密码 3229c1097c00d497a0fd282d586be050，防止隐私泄漏
             sql = "INSERT INTO users VALUES('1111', '3229c1097c00d497a0fd282d586be050', 'John', 'Smith')";
+            // 这个 长string 代表加密之后的密码 3229c1097c00d497a0fd282d586be050，防止隐私泄漏
             statement.executeUpdate(sql);
             // 断开与数据库的连接
             conn.close();

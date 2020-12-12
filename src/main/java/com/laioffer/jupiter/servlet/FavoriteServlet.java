@@ -21,11 +21,13 @@ public class FavoriteServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // String userId = request.getParameter("user_id");
         // Protect Favorite Related Functions with Session Validation
+        // get current session
         HttpSession session = request.getSession(false);
         if (session == null) {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             return;
         }
+        // 从 session 中读取 user_id
         String userId = (String) session.getAttribute("user_id");
         ObjectMapper mapper = new ObjectMapper();
         // step 1: 读取 request body: request.getReader()
@@ -64,8 +66,9 @@ public class FavoriteServlet extends HttpServlet {
         try {
             connection = new MySQLConnection();
             itemMap = connection.getFavoriteItems(userId);
-//            response.setContentType("application/json;charset=UTF-8");
-//            response.getWriter().print(new ObjectMapper().writeValueAsString(itemMap));
+            // response.setContentType("application/json;charset=UTF-8");
+            // response.getWriter().print(new ObjectMapper().writeValueAsString(itemMap));
+            // Method 2: utilize ServletUtil writeItemMap function
             ServletUtil.writeItemMap(response, itemMap);
         } catch (MySQLException e) {
             throw new ServletException(e);
