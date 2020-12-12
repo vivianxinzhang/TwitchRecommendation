@@ -2,6 +2,7 @@ package com.laioffer.jupiter.servlet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laioffer.jupiter.entity.Item;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,5 +21,9 @@ public class ServletUtil {
         // String output = new ObjectMapper().writeValueAsString(items);
         // Step 3:
         // response.getWriter().print(output);
+    }
+
+    public static String encryptPassword(String userId, String password) throws IOException {
+        return DigestUtils.md5Hex(userId + DigestUtils.md5Hex(password).toLowerCase());
     }
 }
