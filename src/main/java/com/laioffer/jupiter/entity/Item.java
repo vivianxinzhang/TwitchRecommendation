@@ -8,8 +8,15 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 // POJO Class 没有逻辑功能 主要定义一些 fields
 @JsonIgnoreProperties(ignoreUnknown = true)
+// 对于 json中有 Game中没有的field 就忽略 而不要抛出异常
 @JsonInclude(JsonInclude.Include.NON_NULL)
+// 对 null 的数据不convert
 @JsonDeserialize(builder = Item.Builder.class)
+// 创建 Game对象的时候使用 builder class 不要用其默认的 constructor
+// @JsonIgnoreProperties(ignoreUnknown = true) indicates that other fields in the response can be safely ignored.
+// Without this, you’ll get an exception at runtime.
+// @JsonInclude(JsonInclude.Include.NON_NULL) indicates that null fields can be skipped and not included.
+// @JsonDeserialize indicates that Jackson needs to use Game.Builder when constructing a Game object from JSON strings.
 public class Item {
     // Json 格式的数据 convert 成 Java Object
     @JsonProperty("id")

@@ -15,8 +15,12 @@ public class MySQLTableCreator {
             System.out.println("Connecting to " + MySQLDBUtil.getMySQLAddress());
             // 解决 corner case  防止出错
             Class.forName("com.mysql.cj.jdbc.Driver").newInstance();
-            com.mysql.jdbc.Driver driver = new com.mysql.jdbc.Driver();
-            // driver.ne
+            // same with:
+            // step 1:
+            // com.mysql.cj.jdbc.Driver driver = new com.mysql.cj.jdbc.Driver();
+            // (but the library must be available when compile, cannot wait to load the library in runtime)
+            // step 2:
+            // driver.newInstance();
             // 与 MySQL database 建立连接
             Connection conn = DriverManager.getConnection(MySQLDBUtil.getMySQLAddress());
 
