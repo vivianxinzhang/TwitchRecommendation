@@ -2,7 +2,6 @@ package com.laioffer.jupiter.servlet;
 
 import com.laioffer.jupiter.entity.Item;
 import com.laioffer.jupiter.recommendation.ItemRecommender;
-import com.laioffer.jupiter.recommendation.Recommendation;
 import com.laioffer.jupiter.recommendation.RecommendationException;
 
 import javax.servlet.ServletException;
@@ -18,6 +17,8 @@ import java.util.Map;
 @WebServlet(name = "RecommendationServlet", urlPatterns = {"/recommendation"})
 public class RecommendationServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // check if there is session or not (check user login status)
+        // if no, do not create a new session
         HttpSession session = request.getSession(false);
         ItemRecommender itemRecommender = new ItemRecommender();
         Map<String, List<Item>> itemMap;
@@ -31,6 +32,7 @@ public class RecommendationServlet extends HttpServlet {
         } catch (RecommendationException e) {
             throw new ServletException(e);
         }
+        // 利用 utility function 将结果
         ServletUtil.writeItemMap(response, itemMap);
     }
 }
