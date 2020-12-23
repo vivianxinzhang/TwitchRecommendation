@@ -16,12 +16,13 @@ import java.io.IOException;
 public class RegisterServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // 读 request 数据
-        ObjectMapper mapper = new ObjectMapper();
         // request.getReader()  返回 request body 对应的 stream 数据
         // step 1: 读取 request body: request.getReader()
         // step 2: 用 ObjectMapper 将 JSON对象 convert 为 Java Object（class类型：FavoriteRequestBody.class）：mapper.readValue()
         // request.getReader() --> Reader 是读取 stream的interface
-        User user = mapper.readValue(request.getReader(), User.class);
+//        ObjectMapper mapper = new ObjectMapper();
+//        User user = mapper.readValue(request.getReader(), User.class);
+        User user = ServletUtil.readRequestBody(User.class, request);
         if (user == null || user.getUserId().isEmpty() || user.getPassword().isEmpty()) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;

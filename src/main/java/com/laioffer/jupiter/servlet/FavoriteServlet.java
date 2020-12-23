@@ -29,11 +29,12 @@ public class FavoriteServlet extends HttpServlet {
         }
         // 从 session 中读取 user_id
         String userId = (String) session.getAttribute("user_id");
-        ObjectMapper mapper = new ObjectMapper();
+//        ObjectMapper mapper = new ObjectMapper();
+//        FavoriteRequestBody body = mapper.readValue(request.getReader(), FavoriteRequestBody.class);
         // step 1: 读取 request body: request.getReader()
         // step 2: 用 ObjectMapper 将 JSON对象 convert 为 Java Object（class类型：FavoriteRequestBody.class）：mapper.readValue()
         // request.getReader() --> Reader 是读取 stream的interface
-        FavoriteRequestBody body = mapper.readValue(request.getReader(), FavoriteRequestBody.class);
+        FavoriteRequestBody body = ServletUtil.readRequestBody(FavoriteRequestBody.class, request);
         if (body == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -89,8 +90,9 @@ public class FavoriteServlet extends HttpServlet {
             return;
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-        FavoriteRequestBody body = mapper.readValue(request.getReader(), FavoriteRequestBody.class);
+//        ObjectMapper mapper = new ObjectMapper();
+//        FavoriteRequestBody body = mapper.readValue(request.getReader(), FavoriteRequestBody.class);
+        FavoriteRequestBody body = ServletUtil.readRequestBody(FavoriteRequestBody.class, request);
         if (body == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;

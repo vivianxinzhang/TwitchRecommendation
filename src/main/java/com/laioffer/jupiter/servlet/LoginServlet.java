@@ -17,8 +17,9 @@ import java.io.IOException;
 @WebServlet(name = "LoginServlet",  urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        LoginRequestBody body = mapper.readValue(request.getReader(), LoginRequestBody.class);
+//        ObjectMapper mapper = new ObjectMapper();
+//        LoginRequestBody body = mapper.readValue(request.getReader(), LoginRequestBody.class);
+        LoginRequestBody body = ServletUtil.readRequestBody(LoginRequestBody.class, request);
         if (body == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return;
@@ -54,7 +55,9 @@ public class LoginServlet extends HttpServlet {
             LoginRequestBody loginRequestBody = new LoginRequestBody(body.getUserId(), username);
             // 将 loginRequestBody 返回给前端
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().print(new ObjectMapper().writeValueAsString(loginRequestBody));
+            ObjectMapper mapper = new ObjectMapper();
+//            response.getWriter().print(new ObjectMapper().writeValueAsString(loginRequestBody));
+            mapper.writeValue(response.getWriter(), loginRequestBody);
         } else {    // 如果返回的 username为 "", 表示登陆失败，无法验证身份
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
