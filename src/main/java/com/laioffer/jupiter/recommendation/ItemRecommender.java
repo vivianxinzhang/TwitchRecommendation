@@ -36,7 +36,7 @@ public class ItemRecommender {
             // check 是否已经达到 recommendation 的上限
             // 15 + 8
             for (Item item : items) {
-                if (recommendedItems.size() == DEFAULT_PER_GAME_RECOMMENDATION_LIMIT) {
+                if (recommendedItems.size() == DEFAULT_TOTAL_RECOMMENDATION_LIMIT) {
                     break outerloop;
                 }
                 recommendedItems.add(item);
